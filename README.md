@@ -14,5 +14,5 @@ Run the following command in the root directory of your Node-RED install
 Usage
 -----
 
-Allows full feature access to AWS IoT Hub.
+The connected/disconnected event is sent to msg.connected = true/false on Output node only. 
 
