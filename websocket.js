@@ -115,9 +115,7 @@ module.exports = function(RED) {
 
 		function handleAuthentication(req, socket, head) {
 			var authorization,
-			    credentials,
-			    index,
-			    isAuthed,
+				jwtToken,			    
 			    parts,
 			    scheme;
 			authorization = req.headers.authorization;
