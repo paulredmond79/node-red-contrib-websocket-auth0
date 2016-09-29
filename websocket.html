@@ -13,8 +13,8 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 -->
-<!-- websocket-in-auth0put Node -->
-<script type="text/x-red" data-template-name="websocket-in-auth0">
+<!-- ws-in-auth0put Node -->
+<script type="text/x-red" data-template-name="ws-in-auth0">
     <div class="form-row">
         <label for="node-input-mode"><i class="fa fa-dot-circle-o"></i> <span data-i18n="websocket.label.type"></span></label>
         <select id="node-input-mode">
@@ -22,11 +22,11 @@
             <option value="client" data-i18n="websocket.connectto"></option>
         </select>
     </div>
-    <div class="form-row" id="websocket-server-row">
+    <div class="form-row" id="ws-server-row">
         <label for="node-input-server"><i class="fa fa-bookmark"></i> <span data-i18n="websocket.label.path"></span></label>
         <input type="text" id="node-input-server">
     </div>
-    <div class="form-row" id="websocket-client-auth0-row">
+    <div class="form-row" id="ws-client-auth0-row">
         <label for="node-input-client"><i class="fa fa-bookmark"></i> <span data-i18n="websocket.label.url"></span></label>
         <input type="text" id="node-input-client">
     </div>
@@ -36,8 +36,8 @@
     </div>
 </script>
 
-<script type="text/x-red" data-help-name="websocket-in-auth0">
-    <p>websocket-in-auth0put node.</p>
+<script type="text/x-red" data-help-name="ws-in-auth0">
+    <p>ws-in-auth0put node.</p>
     <p>By default, the data received from the WebSocket will be in <code>msg.payload</code>.
     The socket can be configured to expect a properly formed JSON string, in which
     case it will parse the JSON and send on the resulting object as the entire message.</p>
@@ -48,15 +48,15 @@
 (function() {
 
     function ws_oneditprepare() {
-        $("#websocket-client-auth0-row").hide();
+        $("#ws-client-auth0-row").hide();
         $("#node-input-mode").change(function() {
             if ( $("#node-input-mode").val() === 'client') {
-                $("#websocket-server-row").hide();
-                $("#websocket-client-auth0-row").show();
+                $("#ws-server-row").hide();
+                $("#ws-client-auth0-row").show();
             }
             else {
-                $("#websocket-server-row").show();
-                $("#websocket-client-auth0-row").hide();
+                $("#ws-server-row").show();
+                $("#ws-client-auth0-row").hide();
             }
         });
 
@@ -103,12 +103,12 @@
         }
     }
 
-    RED.nodes.registerType('websocket-in-auth0',{
+    RED.nodes.registerType('ws-in-auth0',{
         category: 'input',
         defaults: {
             name: {value:""},
-            server: {type:"websocket-listener-auth0", validate: ws_validateserver},
-            client: {type:"websocket-client-auth0", validate: ws_validateclient}
+            server: {type:"ws-listener-auth0", validate: ws_validateserver},
+            client: {type:"ws-client-auth0", validate: ws_validateclient}
         },
         color:"#FFCC66",
         inputs:0,
@@ -122,12 +122,12 @@
         oneditprepare: ws_oneditprepare
     });
 
-    RED.nodes.registerType('websocket-out-auth0',{
+    RED.nodes.registerType('ws-out-auth0',{
         category: 'output',
         defaults: {
             name: {value:""},
-            server: {type:"websocket-listener-auth0", validate: ws_validateserver},
-            client: {type:"websocket-client-auth0", validate: ws_validateclient}
+            server: {type:"ws-listener-auth0", validate: ws_validateserver},
+            client: {type:"ws-client-auth0", validate: ws_validateclient}
         },
         color:"#FFCC66",
         inputs:1,
@@ -142,7 +142,7 @@
         oneditprepare: ws_oneditprepare
     });
 
-    RED.nodes.registerType('websocket-listener-auth0',{
+    RED.nodes.registerType('ws-listener-auth0',{
         category: 'config',
         defaults: {
             path: {value:"",required:true,validate:RED.validators.regex(/^((?!\/debug\/ws).)*$/) },
@@ -180,18 +180,18 @@
                 $("#node-config-ws-tip").show();
             }            
 			var tabs = RED.tabs.create({
-				id : "node-config-websocket-listener-tabs",
+				id : "node-config-ws-listener-tabs",
 				onchange : function(tab) {
-					$("#node-config-websocket-listener-tabs-content").children().hide();
+					$("#node-config-ws-listener-tabs-content").children().hide();
 					$("#" + tab.id).show();
 				}
 			});
 			tabs.addTab({
-				id : "websocket-listener-tab-connection",
+				id : "ws-listener-tab-connection",
 				label : "Connection"
 			});
 			tabs.addTab({
-				id : "websocket-listener-tab-auth0",
+				id : "ws-listener-tab-auth0",
 				label : "Authentication"
 			});
 			setTimeout(function() {
@@ -200,7 +200,7 @@
         }
     });
 
-    RED.nodes.registerType('websocket-client-auth0',{
+    RED.nodes.registerType('ws-client-auth0',{
         category: 'config',
         defaults: {
             path: {value:"",required:true,validate:RED.validators.regex(/^((?!\/debug\/ws).)*$/) },
@@ -216,8 +216,8 @@
 })();
 </script>
 
-<!-- websocket-out-auth0 Node -->
-<script type="text/x-red" data-template-name="websocket-out-auth0">
+<!-- ws-out-auth0 Node -->
+<script type="text/x-red" data-template-name="ws-out-auth0">
     <div class="form-row">
         <label for="node-input-mode"><i class="fa fa-dot-circle-o"></i> <span data-i18n="websocket.label.type"></span></label>
         <select id="node-input-mode">
@@ -225,11 +225,11 @@
             <option value="client" data-i18n="websocket.connectto"></option>
         </select>
     </div>
-    <div class="form-row" id="websocket-server-row">
+    <div class="form-row" id="ws-server-row">
         <label for="node-input-server"><i class="fa fa-bookmark"></i> <span data-i18n="websocket.label.path"></span></label>
         <input type="text" id="node-input-server">
     </div>
-    <div class="form-row" id="websocket-client-auth0-row">
+    <div class="form-row" id="ws-client-auth0-row">
         <label for="node-input-client"><i class="fa fa-bookmark"></i> <span data-i18n="websocket.label.url"></span></label>
         <input type="text" id="node-input-client">
     </div>
@@ -239,23 +239,26 @@
     </div>
 </script>
 
-<script type="text/x-red" data-help-name="websocket-out-auth0">
-    <p>websocket-out-auth0 node.</p>
+<script type="text/x-red" data-help-name="ws-out-auth0">
+    <p>ws-out-auth0 node.</p>
     <p>By default, <code>msg.payload</code> will be sent over the WebSocket. The socket
     can be configured to encode the entire <code>msg</code> object as a JSON string and send that
     over the WebSocket.</p>
 
-    <p>If the message arriving at this node started at a websocket-in-auth0 node, the message
+    <p>If the message arriving at this node started at a ws-in-auth0 node, the message
     will be sent back to the client that triggered the flow. Otherwise, the message
     will be broadcast to all connected clients.</p>
-    <p>If you want to broadcast a message that started at a websocket-in-auth0 node, you
+    <p>If you want to broadcast a message that started at a ws-in-auth0 node, you
     should delete the <code>msg._session</code> property within the flow.</p>
 </script>
 
 <!-- WebSocket Server configuration node -->
-<script type="text/x-red" data-template-name="websocket-listener-auth0">
-	<div id="node-config-websocket-listener-tabs-content" style="min-height: 170px;">
-		<div id="websocket-listener-tab-connection" style="display:none">
+<script type="text/x-red" data-template-name="ws-listener-auth0">
+	<div class="form-row">
+		<ul style="background: #fff; min-width: 600px; margin-bottom: 20px;" id="node-config-ws-listener-tabs"></ul>
+	</div>
+	<div id="node-config-ws-listener-tabs-content" style="min-height: 170px;">
+		<div id="ws-listener-tab-connection" style="display:none">
 		    <div class="form-row">
 		        <label for="node-config-input-path"><i class="fa fa-bookmark"></i> <span data-i18n="websocket.label.path"></span></label>
 		        <input type="text" id="node-config-input-path" placeholder="/ws/example">
@@ -272,7 +275,7 @@
 		        <p id="node-config-ws-tip"><span data-i18n="[html]websocket.tip.path2"></span><code><span id="node-config-ws-path"></span></code>.</p>
 		    </div>
 		</div>
-		<div id="websocket-listener-tab-auth0" style="display:none">
+		<div id="ws-listener-tab-auth0" style="display:none">
 		    <div class="form-row">
 				<label for="node-config-input-auth0"><i class="fa fa-link"></i> <span>Auth0 URL</span></label>
 				<input class="input-append-left" type="text" id="node-config-input-auth0" placeholder="https://yourdomain.auth0.com/tokeninfo" style="width: 40%;" >
@@ -289,12 +292,12 @@
 	</div>
 </script>
 
-<script type="text/x-red" data-help-name="websocket-listener-auth0">
+<script type="text/x-red" data-help-name="ws-listener-auth0">
    <p>This configuration node creates a WebSocket Server endpoint with Auth0 authentication using the specified path.</p>
 </script>
 
 <!-- WebSocket Client configuration node -->
-<script type="text/x-red" data-template-name="websocket-client-auth0">
+<script type="text/x-red" data-template-name="ws-client-auth0">
     <div class="form-row">
         <label for="node-config-input-path"><i class="fa fa-bookmark"></i> <span data-i18n="websocket.label.url"></span></label>
         <input type="text" id="node-config-input-path" placeholder="ws://example.com/ws">
@@ -312,6 +315,6 @@
     </div>
 </script>
 
-<script type="text/x-red" data-help-name="websocket-client-auth0">
+<script type="text/x-red" data-help-name="ws-client-auth0">
    <p>This configuration node connects a WebSocket client to the specified URL.</p>
 </script>

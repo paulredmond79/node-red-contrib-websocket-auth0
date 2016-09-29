@@ -25,6 +25,7 @@ module.exports = function(RED) {
 		    response;
 		code = 401;
 		name = 'Unauthorized';
+		console.log("abortConnection");
 		try {
 			response = ["HTTP/1.1 " + code + " " + name, "Content-type: text/html"];
 			return socket.write(response.concat("", "").join("\r\n"));
@@ -34,6 +35,15 @@ module.exports = function(RED) {
 			} catch (_error) {
 			}
 		}
+	};
+	
+	var upgradeConnection = function(socket) {
+		console.log("upgradeConnection");
+		socket.write('HTTP/1.1 101 Web Socket Protocol Handshake\r\n' +
+	               'Upgrade: WebSocket\r\n' +
+	               'Connection: Upgrade\r\n' +
+	               '\r\n');
+		socket.pipe(socket); // echo back
 	};
 
 	// A node red node that sets up a local websocket server
@@ -48,7 +58,7 @@ module.exports = function(RED) {
 
 		node.role = n.role;
 		node.group = n.group;
-		node.auth0_url = n.auth0_url;
+		node.auth0 = n.auth0;
 
 		node._inputNodes = [];
 		// collection of nodes that want to receive events
@@ -103,16 +113,18 @@ module.exports = function(RED) {
 			});
 		}
 
-		function handleAuthentication(req, socket) {
+		function handleAuthentication(req, socket, head) {
 			var authorization,
 			    credentials,
 			    index,
 			    isAuthed,
 			    parts,
-			    pass,
-			    scheme,
-			    user;
+			    scheme;
 			authorization = req.headers.authorization;
+			if (typeof (node.auth0) =="undefined" || !node.auth0) {
+				upgradeConnection(socket);			
+			}			
+			
 			if (!authorization) {
 				return abortConnection(socket, 400, 'Bad Request');
 			}
@@ -121,16 +133,14 @@ module.exports = function(RED) {
 				return abortConnection(socket, 400, 'Bad Request');
 			}
 			scheme = parts[0];
-			jwtToken = parts[1];
-			index = credentials.indexOf(":");
-			if ("Bearer" !== scheme || index < 0) {
+			jwtToken = parts[1];						
+			if ("Bearer" !== scheme || !jwtToken ) {
 				return abortConnection(socket, 400, 'Bad Request');
 			}
 
-			var request = require('request');
-			node.log("httpMiddleware:" + node.auth0_url);
+			var request = require('request');			
 			var options = {
-				uri : node.auth0_url,
+				uri : node.auth0,
 				method : 'POST',
 				json : {
 					id_token : jwtToken
@@ -147,7 +157,7 @@ module.exports = function(RED) {
 						req.tokeninfo.authorized = false;
 					}
 					if (req.tokeninfo.authorized) {
-						next();
+						upgradeConnection(socket);
 					} else {
 						return abortConnection(socket, 401, 'Unauthorized');
 					}
@@ -166,7 +176,7 @@ module.exports = function(RED) {
 			node._serverListeners = {};
 
 			var storeListener = function(/*String*/event, /*function*/listener) {
-				if (event == "error" || event == "upgrade" || event == "listening") {
+				if (event == "error" || event == "upgrade" || event == "listening") {					
 					node._serverListeners[event] = listener;
 				}
 			};
@@ -189,7 +199,7 @@ module.exports = function(RED) {
 			RED.server.removeListener('newListener', storeListener);
 
 			node.server.on('connection', handleConnection);
-			node.server.on('upgrade', handleAuthentication);
+			RED.server.on('upgrade', handleAuthentication);
 		} else {
 			node.closing = false;
 			startconn();
@@ -223,8 +233,8 @@ module.exports = function(RED) {
 	}
 
 
-	RED.nodes.registerType("websocket-listener-auth0", WebSocketListenerNode);
-	RED.nodes.registerType("websocket-client-auth0", WebSocketListenerNode);
+	RED.nodes.registerType("ws-listener-auth0", WebSocketListenerNode);
+	RED.nodes.registerType("ws-client-auth0", WebSocketListenerNode);
 
 	WebSocketListenerNode.prototype.registerInputNode = function(/*Node*/handler) {
 		this._inputNodes.push(handler);
@@ -328,7 +338,7 @@ module.exports = function(RED) {
 	}
 
 
-	RED.nodes.registerType("websocket-in-auth0", WebSocketInNode);
+	RED.nodes.registerType("ws-in-auth0", WebSocketInNode);
 
 	function WebSocketOutNode(n) {
 		RED.nodes.createNode(this, n);
@@ -388,5 +398,5 @@ module.exports = function(RED) {
 	}
 
 
-	RED.nodes.registerType("websocket-out-auth0", WebSocketOutNode);
+	RED.nodes.registerType("ws-out-auth0", WebSocketOutNode);
 };

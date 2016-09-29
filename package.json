@@ -4,7 +4,7 @@
 	"description": "A web-socket with Auth0 authentication support.",
 	"dependencies": {
 		"request" : ">=2.72.0",
-		"ws": "0.8.1"
+		"ws": "1.1.1"
 	},
 	"license": "MIT",
 	"keywords": ["node-red", "websocket", "socket", "auth0"],
