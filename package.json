@@ -1,12 +1,13 @@
 {
-	"name": "node-red-contrib-websocket",
-	"version": "0.1.0",
-	"description": "A web-socket with connected and disconnected events support.",
+	"name": "node-red-contrib-websocket-auth0",
+	"version": "0.1.1",
+	"description": "A web-socket with Auth0 authentication support.",
 	"dependencies": {
+		"request" : ">=2.72.0",
 		"ws": "0.8.1"
 	},
 	"license": "MIT",
-	"keywords": ["node-red", "websocket", "socket"],
+	"keywords": ["node-red", "websocket", "socket", "auth0"],
 	"node-red": {
 		"nodes": {
 			"websocket": "websocket.js"
@@ -14,7 +15,7 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/cuongquay/node-red-contrib-websocket"
+		"url": "https://github.com/cuongquay/node-red-contrib-websocket-auth0"
 	},
 	"author": {
 		"name": "DUONG Dinh Cuong",

@@ -19,6 +19,23 @@ module.exports = function(RED) {
 	var ws = require("ws");
 	var inspect = require("util").inspect;
 
+	var abortConnection = function(socket) {
+		var code,
+		    name,
+		    response;
+		code = 401;
+		name = 'Unauthorized';
+		try {
+			response = ["HTTP/1.1 " + code + " " + name, "Content-type: text/html"];
+			return socket.write(response.concat("", "").join("\r\n"));
+		} finally {
+			try {
+				socket.destroy();
+			} catch (_error) {
+			}
+		}
+	};
+
 	// A node red node that sets up a local websocket server
 	function WebSocketListenerNode(n) {
 		// Create a RED node
@@ -28,6 +45,10 @@ module.exports = function(RED) {
 		// Store local copies of the node configuration (as defined in the .html)
 		node.path = n.path;
 		node.wholemsg = (n.wholemsg === "true");
+
+		node.role = n.role;
+		node.group = n.group;
+		node.auth0_url = n.auth0_url;
 
 		node._inputNodes = [];
 		// collection of nodes that want to receive events
@@ -82,6 +103,60 @@ module.exports = function(RED) {
 			});
 		}
 
+		function handleAuthentication(req, socket) {
+			var authorization,
+			    credentials,
+			    index,
+			    isAuthed,
+			    parts,
+			    pass,
+			    scheme,
+			    user;
+			authorization = req.headers.authorization;
+			if (!authorization) {
+				return abortConnection(socket, 400, 'Bad Request');
+			}
+			parts = authorization.split(" ");
+			if (parts.length !== 2) {
+				return abortConnection(socket, 400, 'Bad Request');
+			}
+			scheme = parts[0];
+			jwtToken = parts[1];
+			index = credentials.indexOf(":");
+			if ("Bearer" !== scheme || index < 0) {
+				return abortConnection(socket, 400, 'Bad Request');
+			}
+
+			var request = require('request');
+			node.log("httpMiddleware:" + node.auth0_url);
+			var options = {
+				uri : node.auth0_url,
+				method : 'POST',
+				json : {
+					id_token : jwtToken
+				}
+			};
+			request(options, function(error, response, body) {
+				if (!error && response.statusCode == 200) {
+					req.tokeninfo = body || {};
+					req.tokeninfo.authorized = true;
+					if (node.role && req.tokeninfo && req.tokeninfo.roles && req.tokeninfo.roles.indexOf(node.role) == -1) {
+						req.tokeninfo.authorized = false;
+					}
+					if (node.group && req.tokeninfo && req.tokeninfo.groups && req.tokeninfo.groups.indexOf(node.group) == -1) {
+						req.tokeninfo.authorized = false;
+					}
+					if (req.tokeninfo.authorized) {
+						next();
+					} else {
+						return abortConnection(socket, 401, 'Unauthorized');
+					}
+				} else {
+					return abortConnection(socket, 503, 'The authentication service is unavailable.');
+				}
+			});
+		}
+
 		if (node.isServer) {
 			var path = RED.settings.httpNodeRoot || "/";
 			path = path + (path.slice(-1) == "/" ? "" : "/") + (node.path.charAt(0) == "/" ? node.path.substring(1) : node.path);
@@ -114,6 +189,7 @@ module.exports = function(RED) {
 			RED.server.removeListener('newListener', storeListener);
 
 			node.server.on('connection', handleConnection);
+			node.server.on('upgrade', handleAuthentication);
 		} else {
 			node.closing = false;
 			startconn();
@@ -147,8 +223,8 @@ module.exports = function(RED) {
 	}
 
 
-	RED.nodes.registerType("websocket-listener", WebSocketListenerNode);
-	RED.nodes.registerType("websocket-client", WebSocketListenerNode);
+	RED.nodes.registerType("websocket-listener-auth0", WebSocketListenerNode);
+	RED.nodes.registerType("websocket-client-auth0", WebSocketListenerNode);
 
 	WebSocketListenerNode.prototype.registerInputNode = function(/*Node*/handler) {
 		this._inputNodes.push(handler);
@@ -214,9 +290,11 @@ module.exports = function(RED) {
 		RED.nodes.createNode(this, n);
 		this.server = (n.client) ? n.client : n.server;
 		var node = this;
+
 		this.serverConfig = RED.nodes.getNode(this.server);
 		if (this.serverConfig) {
 			this.serverConfig.registerInputNode(this);
+
 			// TODO: nls
 			this.serverConfig.on('opened', function(n) {
 				node.status({
@@ -225,7 +303,7 @@ module.exports = function(RED) {
 					text : "connected " + n
 				});
 				node.send({
-					connected: true
+					connected : true
 				});
 			});
 			this.serverConfig.on('erro', function() {
@@ -235,7 +313,7 @@ module.exports = function(RED) {
 					text : "error"
 				});
 				node.send({
-					connected: false
+					connected : false
 				});
 			});
 			this.serverConfig.on('closed', function() {
@@ -245,7 +323,7 @@ module.exports = function(RED) {
 					text : "disconnected"
 				});
 				node.send({
-					connected: false
+					connected : false
 				});
 			});
 		} else {
@@ -317,6 +395,7 @@ module.exports = function(RED) {
 			}
 		});
 	}
+
 
 	RED.nodes.registerType("websocket-out", WebSocketOutNode);
 };

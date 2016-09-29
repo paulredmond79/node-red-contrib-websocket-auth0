@@ -26,7 +26,7 @@
         <label for="node-input-server"><i class="fa fa-bookmark"></i> <span data-i18n="websocket.label.path"></span></label>
         <input type="text" id="node-input-server">
     </div>
-    <div class="form-row" id="websocket-client-row">
+    <div class="form-row" id="websocket-client-auth0-row">
         <label for="node-input-client"><i class="fa fa-bookmark"></i> <span data-i18n="websocket.label.url"></span></label>
         <input type="text" id="node-input-client">
     </div>
@@ -48,15 +48,15 @@
 (function() {
 
     function ws_oneditprepare() {
-        $("#websocket-client-row").hide();
+        $("#websocket-client-auth0-row").hide();
         $("#node-input-mode").change(function() {
             if ( $("#node-input-mode").val() === 'client') {
                 $("#websocket-server-row").hide();
-                $("#websocket-client-row").show();
+                $("#websocket-client-auth0-row").show();
             }
             else {
                 $("#websocket-server-row").show();
-                $("#websocket-client-row").hide();
+                $("#websocket-client-auth0-row").hide();
             }
         });
 
@@ -107,8 +107,8 @@
         category: 'input',
         defaults: {
             name: {value:""},
-            server: {type:"websocket-listener", validate: ws_validateserver},
-            client: {type:"websocket-client", validate: ws_validateclient}
+            server: {type:"websocket-listener-auth0", validate: ws_validateserver},
+            client: {type:"websocket-client-auth0", validate: ws_validateclient}
         },
         color:"#FFCC66",
         inputs:0,
@@ -126,8 +126,8 @@
         category: 'output',
         defaults: {
             name: {value:""},
-            server: {type:"websocket-listener", validate: ws_validateserver},
-            client: {type:"websocket-client", validate: ws_validateclient}
+            server: {type:"websocket-listener-auth0", validate: ws_validateserver},
+            client: {type:"websocket-client-auth0", validate: ws_validateclient}
         },
         color:"#FFCC66",
         inputs:1,
@@ -142,11 +142,17 @@
         oneditprepare: ws_oneditprepare
     });
 
-    RED.nodes.registerType('websocket-listener',{
+    RED.nodes.registerType('websocket-listener-auth0',{
         category: 'config',
         defaults: {
             path: {value:"",required:true,validate:RED.validators.regex(/^((?!\/debug\/ws).)*$/) },
-            wholemsg: {value:"false"}
+            wholemsg: {value:"false"},
+            auth0 : {
+				value : "https://yourdomain.auth0.com/tokeninfo",
+				required : true
+			},
+			role: {value:""},
+            group: {value:""}
         },
         inputs:0,
         outputs:0,
@@ -176,7 +182,7 @@
         }
     });
 
-    RED.nodes.registerType('websocket-client',{
+    RED.nodes.registerType('websocket-client-auth0',{
         category: 'config',
         defaults: {
             path: {value:"",required:true,validate:RED.validators.regex(/^((?!\/debug\/ws).)*$/) },
@@ -205,7 +211,7 @@
         <label for="node-input-server"><i class="fa fa-bookmark"></i> <span data-i18n="websocket.label.path"></span></label>
         <input type="text" id="node-input-server">
     </div>
-    <div class="form-row" id="websocket-client-row">
+    <div class="form-row" id="websocket-client-auth0-row">
         <label for="node-input-client"><i class="fa fa-bookmark"></i> <span data-i18n="websocket.label.url"></span></label>
         <input type="text" id="node-input-client">
     </div>
@@ -229,7 +235,7 @@
 </script>
 
 <!-- WebSocket Server configuration node -->
-<script type="text/x-red" data-template-name="websocket-listener">
+<script type="text/x-red" data-template-name="websocket-listener-auth0">
     <div class="form-row">
         <label for="node-config-input-path"><i class="fa fa-bookmark"></i> <span data-i18n="websocket.label.path"></span></label>
         <input type="text" id="node-config-input-path" placeholder="/ws/example">
@@ -245,14 +251,26 @@
         <span data-i18n="[html]websocket.tip.path1"></span>
         <p id="node-config-ws-tip"><span data-i18n="[html]websocket.tip.path2"></span><code><span id="node-config-ws-path"></span></code>.</p>
     </div>
+    <div class="form-row">
+		<label for="node-config-input-auth0"><i class="fa fa-link"></i> <span>Auth0 Token URL</span></label>
+		<input class="input-append-left" type="text" id="node-config-input-auth0" placeholder="https://yourdomain.auth0.com/tokeninfo" style="width: 40%;" >
+	</div>	
+    <div class="form-row">
+        <label for="node-config-input-role"><i class="fa fa-support"></i> <span>Role</span></label>
+        <input type="text" id="node-config-input-role" placeholder="administrator">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-group"><i class="fa fa-group"></i> <span>Group</span></label>
+        <input type="text" id="node-config-input-group" placeholder="Administrator">
+    </div>
 </script>
 
-<script type="text/x-red" data-help-name="websocket-listener">
-   <p>This configuration node creates a WebSocket Server endpoint using the specified path.</p>
+<script type="text/x-red" data-help-name="websocket-listener-auth0">
+   <p>This configuration node creates a WebSocket Server endpoint with Auth0 authentication using the specified path.</p>
 </script>
 
 <!-- WebSocket Client configuration node -->
-<script type="text/x-red" data-template-name="websocket-client">
+<script type="text/x-red" data-template-name="websocket-client-auth0">
     <div class="form-row">
         <label for="node-config-input-path"><i class="fa fa-bookmark"></i> <span data-i18n="websocket.label.url"></span></label>
         <input type="text" id="node-config-input-path" placeholder="ws://example.com/ws">
@@ -270,6 +288,6 @@
     </div>
 </script>
 
-<script type="text/x-red" data-help-name="websocket-client">
+<script type="text/x-red" data-help-name="websocket-client-auth0">
    <p>This configuration node connects a WebSocket client to the specified URL.</p>
 </script>
