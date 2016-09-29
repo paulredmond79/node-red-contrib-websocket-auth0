@@ -20,30 +20,21 @@ module.exports = function(RED) {
 	var inspect = require("util").inspect;
 
 	var abortConnection = function(socket) {
-		var code,
-		    name,
-		    response;
-		code = 401;
-		name = 'Unauthorized';
-		console.log("abortConnection");
+		var response;
 		try {
-			response = ["HTTP/1.1 " + code + " " + name, "Content-type: text/html"];
+			response = ["HTTP/1.1 401 Unauthorized", "Content-type: text/html"];
 			return socket.write(response.concat("", "").join("\r\n"));
 		} finally {
 			try {
 				socket.destroy();
 			} catch (_error) {
+				console.log(_error);
 			}
 		}
 	};
-	
+
 	var upgradeConnection = function(socket) {
-		console.log("upgradeConnection");
-		socket.write('HTTP/1.1 101 Web Socket Protocol Handshake\r\n' +
-	               'Upgrade: WebSocket\r\n' +
-	               'Connection: Upgrade\r\n' +
-	               '\r\n');
-		socket.pipe(socket); // echo back
+		return socket.write('HTTP/1.1 101 Web Socket Protocol Handshake\r\n' + 'Upgrade: WebSocket\r\n' + 'Connection: Upgrade\r\n' + '\r\n');
 	};
 
 	// A node red node that sets up a local websocket server
@@ -115,14 +106,14 @@ module.exports = function(RED) {
 
 		function handleAuthentication(req, socket, head) {
 			var authorization,
-				jwtToken,			    
+			    jwtToken,
 			    parts,
 			    scheme;
 			authorization = req.headers.authorization;
-			if (typeof (node.auth0) =="undefined" || !node.auth0) {
-				upgradeConnection(socket);			
-			}			
-			
+			if ( typeof (node.auth0) == "undefined" || !node.auth0) {
+				return upgradeConnection(socket);
+			}
+
 			if (!authorization) {
 				return abortConnection(socket, 400, 'Bad Request');
 			}
@@ -131,12 +122,12 @@ module.exports = function(RED) {
 				return abortConnection(socket, 400, 'Bad Request');
 			}
 			scheme = parts[0];
-			jwtToken = parts[1];						
-			if ("Bearer" !== scheme || !jwtToken ) {
+			jwtToken = parts[1];
+			if ("Bearer" !== scheme || !jwtToken) {
 				return abortConnection(socket, 400, 'Bad Request');
 			}
 
-			var request = require('request');			
+			var request = require('request');
 			var options = {
 				uri : node.auth0,
 				method : 'POST',
@@ -155,9 +146,9 @@ module.exports = function(RED) {
 						req.tokeninfo.authorized = false;
 					}
 					if (req.tokeninfo.authorized) {
-						upgradeConnection(socket);
+						return upgradeConnection(socket);
 					} else {
-						return abortConnection(socket, 401, 'Unauthorized');
+						return abortConnection(socket, 401, 'Unauthorized - HEKKK');
 					}
 				} else {
 					return abortConnection(socket, 503, 'The authentication service is unavailable.');
@@ -174,7 +165,7 @@ module.exports = function(RED) {
 			node._serverListeners = {};
 
 			var storeListener = function(/*String*/event, /*function*/listener) {
-				if (event == "error" || event == "upgrade" || event == "listening") {					
+				if (event == "error" || event == "upgrade" || event == "listening") {
 					node._serverListeners[event] = listener;
 				}
 			};
