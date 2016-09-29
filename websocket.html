@@ -13,8 +13,8 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 -->
-<!-- websocket-input Node -->
-<script type="text/x-red" data-template-name="websocket-in">
+<!-- websocket-in-auth0put Node -->
+<script type="text/x-red" data-template-name="websocket-in-auth0">
     <div class="form-row">
         <label for="node-input-mode"><i class="fa fa-dot-circle-o"></i> <span data-i18n="websocket.label.type"></span></label>
         <select id="node-input-mode">
@@ -36,8 +36,8 @@
     </div>
 </script>
 
-<script type="text/x-red" data-help-name="websocket-in">
-    <p>websocket-input node.</p>
+<script type="text/x-red" data-help-name="websocket-in-auth0">
+    <p>websocket-in-auth0put node.</p>
     <p>By default, the data received from the WebSocket will be in <code>msg.payload</code>.
     The socket can be configured to expect a properly formed JSON string, in which
     case it will parse the JSON and send on the resulting object as the entire message.</p>
@@ -103,7 +103,7 @@
         }
     }
 
-    RED.nodes.registerType('websocket-in',{
+    RED.nodes.registerType('websocket-in-auth0',{
         category: 'input',
         defaults: {
             name: {value:""},
@@ -122,7 +122,7 @@
         oneditprepare: ws_oneditprepare
     });
 
-    RED.nodes.registerType('websocket-out',{
+    RED.nodes.registerType('websocket-out-auth0',{
         category: 'output',
         defaults: {
             name: {value:""},
@@ -216,8 +216,8 @@
 })();
 </script>
 
-<!-- websocket-out Node -->
-<script type="text/x-red" data-template-name="websocket-out">
+<!-- websocket-out-auth0 Node -->
+<script type="text/x-red" data-template-name="websocket-out-auth0">
     <div class="form-row">
         <label for="node-input-mode"><i class="fa fa-dot-circle-o"></i> <span data-i18n="websocket.label.type"></span></label>
         <select id="node-input-mode">
@@ -239,16 +239,16 @@
     </div>
 </script>
 
-<script type="text/x-red" data-help-name="websocket-out">
-    <p>websocket-out node.</p>
+<script type="text/x-red" data-help-name="websocket-out-auth0">
+    <p>websocket-out-auth0 node.</p>
     <p>By default, <code>msg.payload</code> will be sent over the WebSocket. The socket
     can be configured to encode the entire <code>msg</code> object as a JSON string and send that
     over the WebSocket.</p>
 
-    <p>If the message arriving at this node started at a websocket-in node, the message
+    <p>If the message arriving at this node started at a websocket-in-auth0 node, the message
     will be sent back to the client that triggered the flow. Otherwise, the message
     will be broadcast to all connected clients.</p>
-    <p>If you want to broadcast a message that started at a websocket-in node, you
+    <p>If you want to broadcast a message that started at a websocket-in-auth0 node, you
     should delete the <code>msg._session</code> property within the flow.</p>
 </script>
 

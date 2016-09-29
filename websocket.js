@@ -328,7 +328,7 @@ module.exports = function(RED) {
 	}
 
 
-	RED.nodes.registerType("websocket-in", WebSocketInNode);
+	RED.nodes.registerType("websocket-in-auth0", WebSocketInNode);
 
 	function WebSocketOutNode(n) {
 		RED.nodes.createNode(this, n);
@@ -388,5 +388,5 @@ module.exports = function(RED) {
 	}
 
 
-	RED.nodes.registerType("websocket-out", WebSocketOutNode);
+	RED.nodes.registerType("websocket-out-auth0", WebSocketOutNode);
 };
