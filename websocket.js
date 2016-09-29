@@ -302,9 +302,6 @@ module.exports = function(RED) {
 					shape : "dot",
 					text : "connected " + n
 				});
-				node.send({
-					connected : true
-				});
 			});
 			this.serverConfig.on('erro', function() {
 				node.status({
@@ -312,18 +309,12 @@ module.exports = function(RED) {
 					shape : "ring",
 					text : "error"
 				});
-				node.send({
-					connected : false
-				});
 			});
 			this.serverConfig.on('closed', function() {
 				node.status({
 					fill : "red",
 					shape : "ring",
 					text : "disconnected"
-				});
-				node.send({
-					connected : false
 				});
 			});
 		} else {
