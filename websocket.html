@@ -178,7 +178,25 @@
             } else {
                 $("#node-config-ws-path").html(root);
                 $("#node-config-ws-tip").show();
-            }
+            }            
+			var tabs = RED.tabs.create({
+				id : "node-config-websocket-listener-tabs",
+				onchange : function(tab) {
+					$("#node-config-websocket-listener-tabs-content").children().hide();
+					$("#" + tab.id).show();
+				}
+			});
+			tabs.addTab({
+				id : "websocket-listener-tab-connection",
+				label : "Connection"
+			});
+			tabs.addTab({
+				id : "websocket-listener-tab-auth0",
+				label : "Authentication"
+			});
+			setTimeout(function() {
+				tabs.resize();
+			}, 0);		
         }
     });
 
@@ -236,33 +254,39 @@
 
 <!-- WebSocket Server configuration node -->
 <script type="text/x-red" data-template-name="websocket-listener-auth0">
-    <div class="form-row">
-        <label for="node-config-input-path"><i class="fa fa-bookmark"></i> <span data-i18n="websocket.label.path"></span></label>
-        <input type="text" id="node-config-input-path" placeholder="/ws/example">
-    </div>
-    <div class="form-row">
-        <label for="node-config-input-wholemsg">&nbsp;</label>
-        <select type="text" id="node-config-input-wholemsg" style="width: 70%;">
-            <option value="false" data-i18n="websocket.payload"></option>
-            <option value="true" data-i18n="websocket.message"></option>
-        </select>
-    </div>
-    <div class="form-tips">
-        <span data-i18n="[html]websocket.tip.path1"></span>
-        <p id="node-config-ws-tip"><span data-i18n="[html]websocket.tip.path2"></span><code><span id="node-config-ws-path"></span></code>.</p>
-    </div>
-    <div class="form-row">
-		<label for="node-config-input-auth0"><i class="fa fa-link"></i> <span>Auth0 Token URL</span></label>
-		<input class="input-append-left" type="text" id="node-config-input-auth0" placeholder="https://yourdomain.auth0.com/tokeninfo" style="width: 40%;" >
-	</div>	
-    <div class="form-row">
-        <label for="node-config-input-role"><i class="fa fa-support"></i> <span>Role</span></label>
-        <input type="text" id="node-config-input-role" placeholder="administrator">
-    </div>
-    <div class="form-row">
-        <label for="node-config-input-group"><i class="fa fa-group"></i> <span>Group</span></label>
-        <input type="text" id="node-config-input-group" placeholder="Administrator">
-    </div>
+	<div id="node-config-websocket-listener-tabs-content" style="min-height: 170px;">
+		<div id="websocket-listener-tab-connection" style="display:none">
+		    <div class="form-row">
+		        <label for="node-config-input-path"><i class="fa fa-bookmark"></i> <span data-i18n="websocket.label.path"></span></label>
+		        <input type="text" id="node-config-input-path" placeholder="/ws/example">
+		    </div>
+		    <div class="form-row">
+		        <label for="node-config-input-wholemsg">&nbsp;</label>
+		        <select type="text" id="node-config-input-wholemsg" style="width: 70%;">
+		            <option value="false" data-i18n="websocket.payload"></option>
+		            <option value="true" data-i18n="websocket.message"></option>
+		        </select>
+		    </div>
+		    <div class="form-tips">
+		        <span data-i18n="[html]websocket.tip.path1"></span>
+		        <p id="node-config-ws-tip"><span data-i18n="[html]websocket.tip.path2"></span><code><span id="node-config-ws-path"></span></code>.</p>
+		    </div>
+		</div>
+		<div id="websocket-listener-tab-auth0" style="display:none">
+		    <div class="form-row">
+				<label for="node-config-input-auth0"><i class="fa fa-link"></i> <span>Auth0 URL</span></label>
+				<input class="input-append-left" type="text" id="node-config-input-auth0" placeholder="https://yourdomain.auth0.com/tokeninfo" style="width: 40%;" >
+			</div>	
+		    <div class="form-row">
+		        <label for="node-config-input-role"><i class="fa fa-support"></i> <span>Role</span></label>
+		        <input type="text" id="node-config-input-role" placeholder="administrator">
+		    </div>
+		    <div class="form-row">
+		        <label for="node-config-input-group"><i class="fa fa-group"></i> <span>Group</span></label>
+		        <input type="text" id="node-config-input-group" placeholder="Administrator">
+		    </div>
+		</div>
+	</div>
 </script>
 
 <script type="text/x-red" data-help-name="websocket-listener-auth0">
