@@ -59,7 +59,7 @@ module.exports = function(RED) {
 		node.closing = false;
 
 		function startconn() {// Connect to remote endpoint
-			var socket = new ws(node.path);
+			var socket = new ws(node.path, "gabbo");
 			node.server = socket;
 			// keep for closing
 			handleConnection(socket);
